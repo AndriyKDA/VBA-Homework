@@ -1,0 +1,192 @@
+Sub StockAnalysis()
+
+'loop through all worksheets
+
+For Each ws In Worksheets
+                                
+'********************************************
+
+Dim i As Long
+Dim j, n As Integer
+Dim ticker As String
+Dim TableRow As String
+Dim StartOpenPrice As Double
+Dim EndClosePrice As Double
+Dim YearlyChange As Double
+Dim YearlyChangePerc As Double
+Dim NumberRows As Long
+Dim NumberRowsSummary As Integer
+Dim TotalStockVol As LongLong
+
+'creating a summary table headings
+ws.Range("J1") = "Ticker"
+ws.Range("K1") = "Yearly Change"
+ws.Range("L1") = "Percent Change"
+ws.Range("M1") = "Total Stock Volume"
+    
+'Calculating number of rows in dataset
+NumberRows = ws.Cells(Rows.Count, 1).End(xlUp).Row
+
+'Setting value for Stock Volume
+TotalStockVol = 0
+
+'Defining the row of the summary table
+TableRow = 2
+
+For i = 2 To NumberRows
+    
+    If ws.Cells(i + 1, 1).Value <> ws.Cells(i, 1).Value Then
+    
+        ticker = ws.Cells(i, 1).Value
+        'MsgBox (ticker)
+    
+        'print ticker name in the summary table
+        ws.Range("j" & TableRow) = ticker
+    
+        'setting a year-end price for the stock
+        EndClosePrice = ws.Cells(i, 6).Value
+        
+        'year-end price location check
+        'Range("o" & TableRow) = EndClosePrice
+        'MsgBox (EndPrice)
+    
+        'Calculating the yearly price change
+        YearlyChange = EndClosePrice - StartOpenPrice
+        
+        'Location for the yearly price change
+        ws.Range("K" & TableRow) = YearlyChange
+        
+        'Calcualting the percentage price change and setting a condition in case start price  = 0
+            If StartOpenPrice = 0 Then
+            
+                YearlyChangePerc = 0
+            
+                 Else
+            
+                YearlyChangePerc = EndClosePrice / StartOpenPrice - 1
+            
+             End If
+              
+        'Location for the percentage price change
+        ws.Range("L" & TableRow) = YearlyChangePerc
+        ws.Range("L" & TableRow).NumberFormat = "0.00%"
+        
+         'Calculating stock volume
+        TotalStockVol = TotalStockVol + ws.Cells(i, 7).Value
+        
+        'Location for total stocks
+       ws.Range("M" & TableRow).Value = TotalStockVol
+            
+        'Addin 1 row to  a summary table
+        TableRow = TableRow + 1
+        
+        TotalStockVol = 0
+        
+    'setting a opening price for the stock a the begining of the year
+    ElseIf ws.Cells(i - 1, 1).Value <> ws.Cells(i, 1).Value Then
+    
+         'Opening price value
+        StartOpenPrice = ws.Cells(i, 3).Value
+        
+        'Opening price location check
+        'Range("p" & TableRow) = StartOpenPrice
+        
+        'Calculating stock volume
+        TotalStockVol = TotalStockVol + ws.Cells(i, 7).Value
+        
+     
+     'Calculating stock volume
+     Else
+        TotalStockVol = TotalStockVol + ws.Cells(i, 7).Value
+        
+
+   End If
+        
+Next i
+
+'*************formating****************
+
+'Calculating number of rows inumamry table
+NumberRowsSummary = ws.Cells(Rows.Count, 10).End(xlUp).Row
+
+'loop throught the summary table
+For j = 2 To NumberRowsSummary
+
+'Setting condition for yealry change values and applying color red/green flll
+
+    If ws.Cells(j, 11) > 0 Then
+    ws.Cells(j, 11).Interior.Color = RGB(0, 255, 0)
+ 
+         ElseIf ws.Cells(j, 11) < 0 Then
+        ws.Cells(j, 11).Interior.Color = RGB(255, 0, 0)
+ 
+         Else
+        ws.Cells(j, 11).Interior.Color = RGB(0, 175, 255) ' in case there is no change highlight in blue
+ 
+    End If
+ 
+  Next j
+
+'***************************************
+
+'Bonus question
+
+ws.Range("R1") = "Ticker"
+ws.Range("S1") = "Value"
+ws.Range("Q2") = "Greatest % Increase"
+ws.Range("Q3") = "Greatest % Decrease"
+ws.Range("Q4") = "Greatest Total Volume"
+
+Dim x As Integer
+Dim MaxValue As Double
+Dim MinValue As Double
+Dim MaxVolume As LongLong
+ws.Range("S2:S3").NumberFormat = "0.00%"
+
+MaxValue = Application.WorksheetFunction.Max(ws.Range("L2:L" & ws.Cells(Rows.Count, 12).End(xlUp).Row))
+ws.Range("S2") = MaxValue
+'Range("S2").NumberFormat = "0.00%" ' to change
+
+MinValue = Application.WorksheetFunction.Min(ws.Range("L2:L" & ws.Cells(Rows.Count, 12).End(xlUp).Row))
+ws.Range("S3") = MinValue
+'Range("S3").NumberFormat = "0.00%" ' to change
+
+MaxVolume = Application.WorksheetFunction.Max(ws.Range("M2:M" & ws.Cells(Rows.Count, 13).End(xlUp).Row))
+ws.Range("S4") = MaxVolume
+
+'Loop to find tickers for max, min, max volume
+For x = 2 To ws.Cells(Rows.Count, 12).End(xlUp).Row
+
+If MaxValue = ws.Cells(x, 12) Then
+
+ws.Range("R2") = ws.Cells(x, 10)
+
+ElseIf MinValue = ws.Cells(x, 12) Then
+
+ws.Range("R3") = ws.Cells(x, 10)
+
+ElseIf MaxVolume = ws.Cells(x, 13) Then
+
+ws.Range("R4") = ws.Cells(x, 10)
+
+End If
+
+Next x
+
+'*************************************
+
+'Autofit columns for summary table
+
+    For n = 10 To 19
+
+        ws.Columns(n).EntireColumn.AutoFit
+
+    Next n
+
+'***************************************
+
+Next ws
+
+MsgBox ("Calucaltions have been completed!")
+
+End Sub
