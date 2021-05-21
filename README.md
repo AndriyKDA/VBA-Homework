@@ -8,4 +8,4 @@ This submission includes:
 * The percent change from opening price at the beginning of a given year to the closing price at the end of that year.
 * The total stock volume of the stock.
 * Conditional formatting that highlights positive change in green and negative change in red
-* The script also return the stock with the "Greatest % increase", "Greatest % decrease" and "Greatest total volume"
+* The script also returns the stock with the "Greatest % increase", "Greatest % decrease" and "Greatest total volume"
